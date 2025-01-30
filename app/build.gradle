@@ -4,12 +4,12 @@ plugins {
 
 android {
     namespace 'com.urban.mobileapp'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.urban.mobileapp"
-        minSdk 24
-        targetSdk 34
+        minSdk 26
+        targetSdk 35
         versionCode 1
         versionName "1.0"
 
@@ -33,9 +33,11 @@ dependencies {
     implementation libs.appcompat
     implementation libs.material
     implementation libs.play.services.location
-    implementation 'com.squareup.okhttp3:okhttp:4.9.3' // OkHttp
-    implementation 'androidx.core:core-ktx:1.7.0' // NotificationCompat
-    implementation 'androidx.appcompat:appcompat:1.6.1' // AppCompatActivity
+    implementation libs.okhttp // OkHttp
+    implementation libs.core.ktx // NotificationCompat
+    implementation libs.appcompat.v161 // AppCompatActivity
+    implementation libs.lifecycle.viewmodel
+    implementation libs.lifecycle.livedata
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core

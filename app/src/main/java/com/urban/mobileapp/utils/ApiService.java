@@ -1,15 +1,15 @@
 package com.urban.mobileapp.utils;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
+import android.annotation.SuppressLint;
+
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import androidx.core.app.NotificationCompat;
+import androidx.annotation.Nullable;
+
 
 import java.io.IOException;
 import java.util.concurrent.Executors;
@@ -21,17 +21,18 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class ApiService  extends Service {
-    private static final int NOTIFICATION_ID = 1;
+
     private final IBinder binder = new LocalBinder();
     private ScheduledExecutorService executor;
     private OkHttpClient client;
 
     public class LocalBinder extends Binder {
-        AppService getService() {
+        ApiService getService() {
             return ApiService.this;
         }
     }
 
+    @SuppressLint("ForegroundServiceType")
     @Override
     public void onCreate() {
         super.onCreate();
@@ -40,7 +41,6 @@ public class ApiService  extends Service {
                 .readTimeout(10, TimeUnit.SECONDS)
                 .build();
 
-        startForeground(NOTIFICATION_ID, createNotification());
         startPooling();
     }
 
@@ -49,5 +49,37 @@ public class ApiService  extends Service {
         executor.scheduleWithFixedDelay(this::fetchData, 0, 5, TimeUnit.MINUTES);
     }
 
-    private void fetchData
+    private void fetchData() {
+        Request request = new Request.Builder()
+                .url("http://10.0.2.2:8080/api/hello")
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (response.isSuccessful() && response.body() != null) {
+                String result = response.body().string();
+                Log.d("ApiService", "Odpowiedź serwera: " + result);
+                broadCastResult(result);
+            }
+        } catch (IOException e) {
+            Log.e("ApiService", "Błąd podczas pobierania danych ", e);
+        }
+    }
+
+    private void broadCastResult(String result) {
+        Intent intent = new Intent("DATA_UPDATE_ACTION");
+        intent.putExtra("result", result);
+        sendBroadcast(intent);
+    }
+
+    @Override
+    public void onDestroy() {
+        executor.shutdown();
+        super.onDestroy();
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;
+    }
 }
