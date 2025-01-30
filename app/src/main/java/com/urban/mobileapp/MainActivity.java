@@ -1,10 +1,7 @@
 package com.urban.mobileapp;
 
 import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
@@ -20,7 +17,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.urban.mobileapp.utils.ApiService;
 import com.urban.mobileapp.utils.GeocoderHelper;
 import com.urban.mobileapp.utils.LocationHelper;
 import com.urban.mobileapp.utils.SharedViewModel;
@@ -28,7 +24,7 @@ import com.urban.mobileapp.utils.SharedViewModel;
 
 public class MainActivity extends AppCompatActivity  {
 
-    private TextView tvCoordinates, tvAddress, tvHello;
+    private TextView tvCoordinates, tvAddress, tvHello, tvBearing;
     private LocationHelper locationHelper;
     private GeocoderHelper geocoderHelper;
     private SharedViewModel sharedViewModel;
@@ -60,6 +56,7 @@ public class MainActivity extends AppCompatActivity  {
             tvCoordinates = findViewById(R.id.tvCoordinates);
             tvAddress = findViewById(R.id.tvAddress);
             tvHello = findViewById(R.id.tvHello);
+            tvBearing = findViewById(R.id.tvBearing);
 
             checkNotificationPermission();
             sharedViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
@@ -88,12 +85,16 @@ public class MainActivity extends AppCompatActivity  {
         String coordinates = "Szerokość: " + location.getLatitude() + "\nDługość: " + location.getLongitude();
         tvCoordinates.setText(coordinates);
 
+        float bearing = location.hasBearing() ? location.getBearing() : 0.0f;
+
         geocoderHelper.getAddressFromLocation(location.getLatitude(), location.getLongitude(), new GeocoderHelper.GeocoderListener() {
             @SuppressLint("SetTextI18n")
             @Override
             public void onAddressFound(String address) {
                 tvAddress.setText("Aktualny address: " + address);
                 Log.d("UpdatedAddress", "Aktualny address " + address);
+                tvBearing.setText("Aktualny kąt: " + bearing);
+                Log.d("UpdatedBearing", "Aktualny kąt " + bearing);
 
             }
 

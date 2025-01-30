@@ -9,28 +9,33 @@
     <TextView
         android:id="@+id/tvCoordinates2"
         android:layout_width="match_parent"
-        android:layout_height="130dp"
+        android:layout_height="75dp"
         android:rotation="0"
-        android:rotationX="0"
-        android:text="Współrzędne: -" />
+        android:rotationX="0" />
 
     <TextView
         android:id="@+id/tvCoordinates"
         android:layout_width="212dp"
-        android:layout_height="80dp"
+        android:layout_height="66dp"
         android:rotation="0"
         android:rotationX="0"
         android:text="Współrzędne: -" />
 
     <TextView
+        android:id="@+id/tvBearing"
+        android:layout_width="211dp"
+        android:layout_height="32dp"
+        android:text="Kąt: -" />
+
+    <TextView
         android:id="@+id/tvAddress"
-        android:layout_width="205dp"
+        android:layout_width="715dp"
         android:layout_height="48dp"
         android:text="Adres: -" />
 
     <TextView
         android:id="@+id/tvHello"
-        android:layout_width="198dp"
+        android:layout_width="717dp"
         android:layout_height="44dp"
         android:text="Dane: -" />
 

@@ -57,9 +57,9 @@ public class LocationHelper {
         }
 
         LocationRequest locationRequest = new LocationRequest.Builder(
-                Priority.PRIORITY_HIGH_ACCURACY, 2000)
-                .setMinUpdateIntervalMillis(100)
-                .setMinUpdateDistanceMeters(1)
+                Priority.PRIORITY_HIGH_ACCURACY, 5000)
+                .setMinUpdateIntervalMillis(2000)
+                .setMinUpdateDistanceMeters(5)
                 .build();
 
         fusedLocationClient.requestLocationUpdates(
@@ -72,6 +72,7 @@ public class LocationHelper {
         fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
             if (location != null && listener != null) {
                 listener.onLocationUpdated(location);
+                Log.d(TAG, "Ostatnia znana lokalizacja: " + location.getLatitude() + ", " + location.getLongitude());
             }
         });
     }
