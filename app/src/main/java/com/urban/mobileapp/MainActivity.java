@@ -18,10 +18,12 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.urban.mobileapp.utils.ApiService;
 import com.urban.mobileapp.utils.GeocoderHelper;
 import com.urban.mobileapp.utils.LocationHelper;
+import com.urban.mobileapp.utils.SharedViewModel;
 
 
 public class MainActivity extends AppCompatActivity  {
@@ -29,7 +31,7 @@ public class MainActivity extends AppCompatActivity  {
     private TextView tvCoordinates, tvAddress, tvHello;
     private LocationHelper locationHelper;
     private GeocoderHelper geocoderHelper;
-    private BroadcastReceiver dataReceiver;
+    private SharedViewModel sharedViewModel;
 
     private final ActivityResultLauncher<String> locationPermissionRequest =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -60,9 +62,12 @@ public class MainActivity extends AppCompatActivity  {
             tvHello = findViewById(R.id.tvHello);
 
             checkNotificationPermission();
+            sharedViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
 
-            setUpDataReceiver(); // Register receiver first
-            startService(new Intent(this, ApiService.class)); // Then start service
+            sharedViewModel.getApiResponse().observe(this, response -> {
+                tvHello.setText("Odpowiedź serwera: " + response);
+                Log.d("API", "Odpowiedź serwera: " + response);
+            });
 
             locationHelper = new LocationHelper(this);
             geocoderHelper = new GeocoderHelper(this);
@@ -111,25 +116,10 @@ public class MainActivity extends AppCompatActivity  {
         }
     }
 
-    private void setUpDataReceiver() {
-        dataReceiver = new BroadcastReceiver() {
-            @SuppressLint("SetTextI18n")
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String result = intent.getStringExtra("result");
-                runOnUiThread(() -> {
-                    tvHello.setText("Odpowiedź serwera: " + result);
-                    Log.d("API", "Odpowiedź serwera: " + result);
-                });
-            }
-        };
-        registerReceiver(dataReceiver, new IntentFilter("DATA_UPDATE_ACTION"), Context.RECEIVER_NOT_EXPORTED);
-    }
 
     @Override
     protected void onPause() {
         super.onPause();
         locationHelper.stopLocationUpdates();
-        unregisterReceiver(dataReceiver);
     }
 }

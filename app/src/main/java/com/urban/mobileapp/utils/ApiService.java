@@ -57,18 +57,12 @@ public class ApiService  extends Service {
         try (Response response = client.newCall(request).execute()) {
             if (response.isSuccessful() && response.body() != null) {
                 String result = response.body().string();
+                DataRepository.getInstance().setApiResponse(result);
                 Log.d("ApiService", "Odpowiedź serwera: " + result);
-                broadCastResult(result);
             }
         } catch (IOException e) {
             Log.e("ApiService", "Błąd podczas pobierania danych ", e);
         }
-    }
-
-    private void broadCastResult(String result) {
-        Intent intent = new Intent("DATA_UPDATE_ACTION");
-        intent.putExtra("result", result);
-        sendBroadcast(intent);
     }
 
     @Override
