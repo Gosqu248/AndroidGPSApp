@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
                     if (response.isSuccessful() && response.body() != null) {
                         Bus bus = response.body();
                         Log.d("BUS_DETAILS", "Bus: " + bus.getId() + " Line: " + bus.getLineNumber());
-                        tvBus.setText("Dane autobusu: \nLinia: " + bus.getLineNumber() + " \nModel: " + bus.getModel() + " \nPojemność: " + bus.getCapacity());
+                        tvBus.setText("Dane autobusu: \nLinia: " + bus.getLineNumber() + " \nModel: " + bus.getModel() + " \nIlość miejsc: " + bus.getCapacity());
                     } else {
                         tvBus.setText("Brak danych autobusu");
                     }
