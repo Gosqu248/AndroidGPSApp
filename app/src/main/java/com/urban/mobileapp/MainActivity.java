@@ -1,7 +1,6 @@
 package com.urban.mobileapp;
 
 import android.annotation.SuppressLint;
-
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
@@ -13,21 +12,25 @@ import android.Manifest;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.ViewModelProvider;
 
+import com.urban.mobileapp.model.Bus;
+import com.urban.mobileapp.service.BusApi;
 import com.urban.mobileapp.utils.GeocoderHelper;
 import com.urban.mobileapp.utils.LocationHelper;
-import com.urban.mobileapp.utils.SharedViewModel;
+import com.urban.mobileapp.utils.RetrofitClient;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity  {
+public class MainActivity extends AppCompatActivity {
 
-    private TextView tvCoordinates, tvAddress, tvHello, tvBearing;
+    private TextView tvCoordinates, tvAddress, tvBus, tvBearing;
     private LocationHelper locationHelper;
     private GeocoderHelper geocoderHelper;
-    private SharedViewModel sharedViewModel;
 
     private final ActivityResultLauncher<String> locationPermissionRequest =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -45,8 +48,7 @@ public class MainActivity extends AppCompatActivity  {
                 }
             });
 
-
-
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,15 +57,29 @@ public class MainActivity extends AppCompatActivity  {
 
             tvCoordinates = findViewById(R.id.tvCoordinates);
             tvAddress = findViewById(R.id.tvAddress);
-            tvHello = findViewById(R.id.tvHello);
+            tvBus = findViewById(R.id.tvBus);
             tvBearing = findViewById(R.id.tvBearing);
 
             checkNotificationPermission();
-            sharedViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
+            BusApi busApi = RetrofitClient.getRetrofitInstance().create(BusApi.class);
 
-            sharedViewModel.getApiResponse().observe(this, response -> {
-                tvHello.setText("Odpowiedź serwera: " + response);
-                Log.d("API", "Odpowiedź serwera: " + response);
+            busApi.getBusById(1L).enqueue(new Callback<Bus>() {
+                @Override
+                public void onResponse(@NonNull Call<Bus> call, @NonNull Response<Bus> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        Bus bus = response.body();
+                        Log.d("BUS_DETAILS", "Bus: " + bus.getId() + " Line: " + bus.getLineNumber());
+                        tvBus.setText("Dane autobusu: \nLinia: " + bus.getLineNumber() + " \nModel: " + bus.getModel() + " \nPojemność: " + bus.getCapacity());
+                    } else {
+                        tvBus.setText("Brak danych autobusu");
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<Bus> call, @NonNull Throwable t) {
+                    Log.e("API_ERROR", "Error: " + t.getMessage());
+                    tvBus.setText("Błąd pobierania danych");
+                }
             });
 
             locationHelper = new LocationHelper(this);
@@ -82,6 +98,8 @@ public class MainActivity extends AppCompatActivity  {
     }
 
     private void updateLocation(Location location) {
+        if (location == null) return;
+
         String coordinates = "Szerokość: " + location.getLatitude() + "\nDługość: " + location.getLongitude();
         tvCoordinates.setText(coordinates);
 
@@ -95,7 +113,6 @@ public class MainActivity extends AppCompatActivity  {
                 Log.d("UpdatedAddress", "Aktualny address " + address);
                 tvBearing.setText("Aktualny kąt: " + bearing);
                 Log.d("UpdatedBearing", "Aktualny kąt " + bearing);
-
             }
 
             @Override
@@ -111,12 +128,10 @@ public class MainActivity extends AppCompatActivity  {
                     this,
                     Manifest.permission.POST_NOTIFICATIONS
             ) != PackageManager.PERMISSION_GRANTED) {
-
                 notificationPermissionRequest.launch(Manifest.permission.POST_NOTIFICATIONS);
             }
         }
     }
-
 
     @Override
     protected void onPause() {

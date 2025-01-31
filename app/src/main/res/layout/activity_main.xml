@@ -34,9 +34,9 @@
         android:text="Adres: -" />
 
     <TextView
-        android:id="@+id/tvHello"
+        android:id="@+id/tvBus"
         android:layout_width="717dp"
-        android:layout_height="44dp"
-        android:text="Dane: -" />
+        android:layout_height="159dp"
+        android:text="Bus: -" />
 
 </LinearLayout>

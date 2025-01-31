@@ -25,20 +25,6 @@
         android:usesCleartextTraffic="true">
 
 
-        <service
-            android:name=".utils.ApiService"
-            android:enabled="true"
-            android:exported="false" />
-
-        <receiver
-            android:name=".utils.BootReceiver"
-            android:enabled="true"
-            android:exported="true"> <!-- Zmień na true -->
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-
         <activity
             android:name=".MainActivity"
             android:exported="true">
