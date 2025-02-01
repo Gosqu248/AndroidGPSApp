@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,15 +23,28 @@ import com.urban.mobileapp.utils.GeocoderHelper;
 import com.urban.mobileapp.utils.LocationHelper;
 import com.urban.mobileapp.utils.RetrofitClient;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView tvCoordinates, tvAddress, tvBus, tvBearing;
+    private TextView tvTilt, tvTime;
     private LocationHelper locationHelper;
     private GeocoderHelper geocoderHelper;
+    private final Handler handler = new Handler();
+
+    private final Runnable timeUpdater = new Runnable() {
+        @Override
+        public void run() {
+            setHour();
+            handler.postDelayed(this, 1000);
+        }
+    };
 
     private final ActivityResultLauncher<String> locationPermissionRequest =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -55,10 +69,10 @@ public class MainActivity extends AppCompatActivity {
         try {
             setContentView(R.layout.activity_main);
 
-            tvCoordinates = findViewById(R.id.tvCoordinates);
-            tvAddress = findViewById(R.id.tvAddress);
-            tvBus = findViewById(R.id.tvBus);
-            tvBearing = findViewById(R.id.tvBearing);
+            tvTilt = findViewById(R.id.tvTilt);
+            tvTime = findViewById(R.id.tvTime);
+
+            setHour();
 
             checkNotificationPermission();
             BusApi busApi = RetrofitClient.getRetrofitInstance().create(BusApi.class);
@@ -69,16 +83,12 @@ public class MainActivity extends AppCompatActivity {
                     if (response.isSuccessful() && response.body() != null) {
                         Bus bus = response.body();
                         Log.d("BUS_DETAILS", "Bus: " + bus.getId() + " Line: " + bus.getLineNumber());
-                        tvBus.setText("Dane autobusu: \nLinia: " + bus.getLineNumber() + " \nModel: " + bus.getModel() + " \nIlość miejsc: " + bus.getCapacity());
-                    } else {
-                        tvBus.setText("Brak danych autobusu");
                     }
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<Bus> call, @NonNull Throwable t) {
                     Log.e("API_ERROR", "Error: " + t.getMessage());
-                    tvBus.setText("Błąd pobierania danych");
                 }
             });
 
@@ -101,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         if (location == null) return;
 
         String coordinates = "Szerokość: " + location.getLatitude() + "\nDługość: " + location.getLongitude();
-        tvCoordinates.setText(coordinates);
+        Log.d("Coordinates", coordinates);
 
         float bearing = location.hasBearing() ? location.getBearing() : 0.0f;
 
@@ -109,9 +119,8 @@ public class MainActivity extends AppCompatActivity {
             @SuppressLint("SetTextI18n")
             @Override
             public void onAddressFound(String address) {
-                tvAddress.setText("Aktualny address: " + address);
                 Log.d("UpdatedAddress", "Aktualny address " + address);
-                tvBearing.setText("Aktualny kąt: " + bearing);
+                tvTilt.setText("Aktualny kąt: " + bearing);
                 Log.d("UpdatedBearing", "Aktualny kąt " + bearing);
             }
 
@@ -120,6 +129,12 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void setHour() {
+
+        String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
+        tvTime.setText(currentTime);
     }
 
     private void checkNotificationPermission() {
@@ -134,8 +149,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        handler.post(timeUpdater);
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
+        handler.removeCallbacks(timeUpdater);
         locationHelper.stopLocationUpdates();
     }
 }

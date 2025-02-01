@@ -4,39 +4,175 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="#000000">
 
+    <!-- Szary -->
     <TextView
-        android:id="@+id/tvCoordinates2"
+        android:id="@+id/tvTime"
         android:layout_width="match_parent"
-        android:layout_height="75dp"
-        android:rotation="0"
-        android:rotationX="0" />
+        android:layout_height="53dp"
+        android:background="#565454"
+        android:padding="8dp"
+        android:textAlignment="center"
+        android:text="--:--"
+        android:textColor="#FFFFFF"
+        android:textSize="34sp" />
 
+    <!-- Czarny -->
     <TextView
-        android:id="@+id/tvCoordinates"
-        android:layout_width="212dp"
-        android:layout_height="66dp"
-        android:rotation="0"
-        android:rotationX="0"
-        android:text="Współrzędne: -" />
+        android:id="@+id/tvVariant"
+        android:layout_width="match_parent"
+        android:layout_height="53dp"
+        android:background="#000000"
+        android:padding="8dp"
+        android:textAlignment="center"
+        android:text="Wariant"
+        android:textColor="#FFFFFF"
+        android:textSize="26sp" />
 
-    <TextView
-        android:id="@+id/tvBearing"
-        android:layout_width="211dp"
-        android:layout_height="32dp"
-        android:text="Kąt: -" />
+    <!-- Ciemny szary | Szary -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/tvAddress"
-        android:layout_width="715dp"
-        android:layout_height="48dp"
-        android:text="Adres: -" />
+        <TextView
+            android:id="@+id/tvPrevStopLabel"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#444444"
+            android:padding="8dp"
+            android:text="Poprzedni przystanek"
+            android:textColor="#FFFFFF"
+            android:textSize="26sp" />
 
-    <TextView
-        android:id="@+id/tvBus"
-        android:layout_width="717dp"
-        android:layout_height="159dp"
-        android:text="Bus: -" />
+        <TextView
+            android:id="@+id/tvPrevStop"
+            android:layout_width="323dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#888888"
+            android:padding="8dp"
+            android:text="-"
+            android:textColor="#FFFFFF"
+            android:textSize="26sp" />
+    </LinearLayout>
 
+    <!-- Szary | Czarny -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvNowLabel"
+            android:layout_width="0dp"
+            android:layout_height="59dp"
+            android:layout_weight="1"
+            android:background="#888888"
+            android:padding="8dp"
+            android:text="Teraz"
+            android:textColor="#FFFFFF"
+            android:textSize="26sp" />
+
+        <TextView
+            android:id="@+id/tvNow"
+            android:layout_width="323dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#000000"
+            android:padding="8dp"
+            android:text="Teraz"
+            android:textColor="#FFFFFF"
+            android:textSize="26sp" />
+    </LinearLayout>
+
+    <!-- Ciemny szary | Szary -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvNextStopLabel"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#444444"
+            android:padding="8dp"
+            android:text="Następny przystanek"
+            android:textColor="#FFFFFF"
+            android:textSize="26sp" />
+
+        <TextView
+            android:id="@+id/tvNextStop"
+            android:layout_width="322dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#888888"
+            android:padding="8dp"
+            android:text="-"
+            android:textColor="#FFFFFF"
+            android:textSize="26sp" />
+    </LinearLayout>
+
+    <!-- Szary | Czarny -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvPlannedTimeLabel"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#444444"
+            android:padding="8dp"
+            android:text="Planowany czas następnego przystanku"
+            android:textColor="#FFFFFF"
+            android:textSize="26sp" />
+
+        <TextView
+            android:id="@+id/tvPlannedTime"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#000000"
+            android:padding="8dp"
+            android:text="czas"
+            android:textColor="#FFFFFF"
+            android:textSize="26sp" />
+    </LinearLayout>
+
+    <!-- Ciemny szary | Szary -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvTiltLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#000000"
+            android:padding="8dp"
+            android:text="Kąt nachylenia"
+            android:textColor="#FFFFFF"
+            android:textSize="26sp" />
+
+        <TextView
+            android:id="@+id/tvTilt"
+            android:layout_width="328dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#888888"
+            android:padding="8dp"
+            android:text="-"
+            android:textColor="#FFFFFF"
+            android:textSize="26sp" />
+    </LinearLayout>
 </LinearLayout>

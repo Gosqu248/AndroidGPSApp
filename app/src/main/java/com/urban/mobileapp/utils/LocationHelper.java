@@ -58,9 +58,9 @@ public class LocationHelper {
         }
 
         LocationRequest locationRequest = new LocationRequest.Builder(
-                Priority.PRIORITY_HIGH_ACCURACY, 3000)
-                .setMinUpdateIntervalMillis(3000)
-                .setMinUpdateDistanceMeters(0)
+                Priority.PRIORITY_HIGH_ACCURACY, 1000)
+                .setMinUpdateIntervalMillis(1000)
+                .setMinUpdateDistanceMeters(1)
                 .setGranularity(Granularity.GRANULARITY_FINE)
                 .build();
 
