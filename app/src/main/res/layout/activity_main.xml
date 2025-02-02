@@ -27,7 +27,7 @@
         android:background="#000000"
         android:padding="8dp"
         android:textAlignment="center"
-        android:text="Wariant"
+        android:text=" Wariant"
         android:textColor="#FFFFFF"
         android:textSize="26sp" />
 
@@ -44,7 +44,7 @@
             android:layout_weight="1"
             android:background="#444444"
             android:padding="8dp"
-            android:text="Poprzedni przystanek"
+            android:text=" Poprzedni przystanek"
             android:textColor="#FFFFFF"
             android:textSize="26sp" />
 
@@ -73,7 +73,7 @@
             android:layout_weight="1"
             android:background="#888888"
             android:padding="8dp"
-            android:text="Teraz"
+            android:text=" Teraz"
             android:textColor="#FFFFFF"
             android:textSize="26sp" />
 
@@ -102,7 +102,7 @@
             android:layout_weight="1"
             android:background="#444444"
             android:padding="8dp"
-            android:text="Następny przystanek"
+            android:text=" Następny przystanek"
             android:textColor="#FFFFFF"
             android:textSize="26sp" />
 
@@ -131,7 +131,7 @@
             android:layout_weight="1"
             android:background="#444444"
             android:padding="8dp"
-            android:text="Planowany czas następnego przystanku"
+            android:text=" Planowany czas następnego przystanku"
             android:textColor="#FFFFFF"
             android:textSize="26sp" />
 
@@ -160,12 +160,66 @@
             android:layout_weight="1"
             android:background="#000000"
             android:padding="8dp"
-            android:text="Kąt nachylenia"
+            android:text=" Aktualny kąt nachylenia"
             android:textColor="#FFFFFF"
             android:textSize="26sp" />
 
         <TextView
             android:id="@+id/tvTilt"
+            android:layout_width="328dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#888888"
+            android:padding="8dp"
+            android:text="-"
+            android:textColor="#FFFFFF"
+            android:textSize="26sp" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvAddressLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#888888"
+            android:padding="8dp"
+            android:text=" Aktualny adres"
+            android:textColor="#FFFFFF"
+            android:textSize="26sp" />
+
+        <TextView
+            android:id="@+id/tvAddress"
+            android:layout_width="328dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#000000"
+            android:padding="8dp"
+            android:text="-"
+            android:textColor="#FFFFFF"
+            android:textSize="26sp" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvAccuracyLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#444444"
+            android:padding="8dp"
+            android:text=" Aktualna dokładność"
+            android:textColor="#FFFFFF"
+            android:textSize="26sp" />
+
+        <TextView
+            android:id="@+id/tvAccuracy"
             android:layout_width="328dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
