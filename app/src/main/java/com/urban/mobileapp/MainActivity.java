@@ -1,13 +1,19 @@
 package com.urban.mobileapp;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.Settings;
 import android.util.Log;
+import android.view.View;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.Manifest;
@@ -18,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.urban.mobileapp.boot.BackgroundService;
 import com.urban.mobileapp.db.AppDatabase;
 import com.urban.mobileapp.db.dao.StopDao;
 import com.urban.mobileapp.db.entity.Stop;
@@ -83,6 +90,17 @@ public class MainActivity extends AppCompatActivity {
             tvAddress = findViewById(R.id.tvAddress);
             tvAccuracy = findViewById(R.id.tvAccuracy);
 
+
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+            );
+
+            // Utrzymywanie ekranu włączonego
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
             checkNotificationPermission();
             setHour();
             getApiData();
@@ -129,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
 
          float distance = currentLocation.distanceTo(stopLocation);
 
-         if (distance - currentLocation.getAccuracy() <= 10) {
+         if (distance <= 10) {
              tvCurrentStop.setText(stop.getName());
              return;
          }
@@ -227,6 +245,15 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+                Toast.makeText(this, "Wymagane zezwolenie na nakładkę!", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
     @Override
     protected void onResume() {
@@ -237,6 +264,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        activityManager.moveTaskToFront(getTaskId(), 0);
         handler.removeCallbacks(timeUpdater);
         locationHelper.stopLocationUpdates();
     }
