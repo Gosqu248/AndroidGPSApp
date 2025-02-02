@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,6 +15,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.Manifest;
@@ -24,7 +26,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
-import com.urban.mobileapp.boot.BackgroundService;
 import com.urban.mobileapp.db.AppDatabase;
 import com.urban.mobileapp.db.dao.StopDao;
 import com.urban.mobileapp.db.entity.Stop;
@@ -38,6 +39,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -52,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
     private GeocoderHelper geocoderHelper;
     private final Handler handler = new Handler();
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private MediaPlayer mediaPlayer;
+    private String currentStopName = null;
 
     private final Runnable timeUpdater = new Runnable() {
         @Override
@@ -148,7 +152,32 @@ public class MainActivity extends AppCompatActivity {
          float distance = currentLocation.distanceTo(stopLocation);
 
          if (distance <= 10) {
-             tvCurrentStop.setText(stop.getName());
+
+             String stopName = stop.getName();
+
+             if (!stopName.equals(currentStopName)) {
+                 tvCurrentStop.setText(stop.getName());
+                 String mp3Name = getAudioFileName(stopName);
+                 Log.d("MP3", mp3Name);
+
+                 int resourceId = getResources().getIdentifier(
+                         mp3Name,
+                         "raw",
+                         getPackageName()
+                 );
+
+
+                 if (resourceId != 0) {
+                     if (mediaPlayer != null) {
+                         mediaPlayer.release();
+                     }
+                     mediaPlayer = MediaPlayer.create(this, resourceId);
+                     mediaPlayer.start();
+                 } else {
+                     Log.e("MP3", "Brak pliku: " + mp3Name);
+                 }
+                 currentStopName = stopName;
+             }
              return;
          }
      }
@@ -212,18 +241,15 @@ public class MainActivity extends AppCompatActivity {
         ExecutorService executor = Executors.newSingleThreadExecutor();
 
         executor.execute(() -> {
-            // Get database instance
             AppDatabase db = AppDatabase.getInstance(getApplicationContext());
             StopDao stopDao = db.stopDao();
 
-            // Insert stops
-            stopDao.insert(new Stop("Stacja wujek Łukasz", 49.84942067562159, 20.74343013571693));
+            stopDao.insert(new Stop("Stacja wujek Łukasz", 49.849325566709204, 20.7434461134111));
             stopDao.insert(new Stop("Stacja wujek Wojtek", 49.84926291735035, 20.74384359629674));
             stopDao.insert(new Stop("Stacja wujek Władek", 49.84943412785344, 20.744145156994847));
             stopDao.insert(new Stop("Stacja krzyżówka", 49.849587299658324, 20.745886310070112));
             stopDao.insert(new Stop("Stacja wały", 49.85008277540994, 20.746635381059967));
 
-            // Fetch and log all stops
             List<Stop> stops = stopDao.getAllStops();
             for (Stop stop : stops) {
                 Log.d("DATABASE", "Stop: ID=" + stop.getId() +
@@ -234,6 +260,25 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private static String getAudioFileName(String stopName) {
+        String name = stopName.replace("Stacja ", "").replace(" ", "");
+        name = replacePolishCharacters(name);
+        return name.toLowerCase();
+    }
+
+    private static String replacePolishCharacters(String input) {
+     return input
+             .replace("ł", "l")
+             .replace("Ł", "L")
+             .replace("ą", "a")
+             .replace("ę", "e")
+             .replace("ć", "c")
+             .replace("ś", "s")
+             .replace("ź", "z")
+             .replace("ż", "z")
+             .replace("ń", "n")
+             .replace("ó", "o");
+    }
 
     private void checkNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -274,5 +319,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         executorService.shutdown();
+        if(mediaPlayer != null) {
+            mediaPlayer.release(); // Zwolnij zasoby
+            mediaPlayer = null;
+        }
     }
 }
