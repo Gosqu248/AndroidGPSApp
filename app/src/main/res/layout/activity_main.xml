@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -14,8 +15,8 @@
         android:layout_height="53dp"
         android:background="#565454"
         android:padding="8dp"
-        android:textAlignment="center"
         android:text="--:--"
+        android:textAlignment="center"
         android:textColor="#FFFFFF"
         android:textSize="34sp" />
 
@@ -229,5 +230,23 @@
             android:textColor="#FFFFFF"
             android:textSize="26sp" />
     </LinearLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/tvId"
+            android:layout_width="1143dp"
+            android:layout_height="215dp"
+            android:layout_weight="1"
+            android:padding="90dp"
+            android:text="-"
+            android:textColor="#FFFFFF"
+            android:textSize="26sp"
+            tools:ignore="MissingConstraints"
+            tools:layout_editor_absoluteX="538dp"
+            tools:layout_editor_absoluteY="49dp" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

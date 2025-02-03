@@ -8,6 +8,6 @@ import retrofit2.http.Path;
 
 public interface BusApi {
 
-    @GET("busses/{id}")
-    Call<Bus> getBusById(@Path("id") Long id);
+    @GET("busses/{androidId}")
+    Call<Bus> getBusById(@Path("androidId") String androidId);
 }

@@ -4,15 +4,18 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 
-import com.urban.mobileapp.db.entity.Stop;
+import com.urban.mobileapp.db.entity.StopDB;
 
 import java.util.List;
 
 @Dao
 public interface StopDao {
     @Insert
-    void insert(Stop stop);
+    void insert(StopDB stopDB);
 
     @Query("SELECT * FROM stops")
-    List<Stop> getAllStops();
+    List<StopDB> getAllStops();
+
+    @Query("DELETE FROM stops")
+    void deleteAllStops();
 }

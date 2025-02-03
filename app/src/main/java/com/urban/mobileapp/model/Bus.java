@@ -1,21 +1,19 @@
 package com.urban.mobileapp.model;
 
+import java.util.List;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
 public class Bus {
 
     private Long id;
-    private String line;
     private String model;
     private int capacity;
+    private String androidId;
 
-    public Bus(Long id, String line, String model, int capacity) {
-        this.id = id;
-        this.line = line;
-        this.model = model;
-        this.capacity = capacity;
-    }
+    private List<Stop> stops;
 
-    public Long getId() { return id; }
-    public String getLineNumber() { return line; }
-    public String getModel() { return model; }
-    public int getCapacity() { return capacity; }
 }

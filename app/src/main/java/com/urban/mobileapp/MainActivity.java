@@ -15,7 +15,6 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.Manifest;
@@ -28,18 +27,18 @@ import androidx.core.content.ContextCompat;
 
 import com.urban.mobileapp.db.AppDatabase;
 import com.urban.mobileapp.db.dao.StopDao;
-import com.urban.mobileapp.db.entity.Stop;
+import com.urban.mobileapp.db.entity.StopDB;
 import com.urban.mobileapp.model.Bus;
+import com.urban.mobileapp.model.Stop;
 import com.urban.mobileapp.service.BusApi;
 import com.urban.mobileapp.utils.GeocoderHelper;
 import com.urban.mobileapp.utils.LocationHelper;
-import com.urban.mobileapp.utils.RetrofitClient;
+import com.urban.mobileapp.service.RetrofitClient;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -49,13 +48,14 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView tvTilt, tvTime, tvCurrentStop, tvAddress, tvAccuracy;
+    private TextView tvTilt, tvTime, tvCurrentStop, tvAddress, tvAccuracy, tvId, tvVariant;
     private LocationHelper locationHelper;
     private GeocoderHelper geocoderHelper;
     private final Handler handler = new Handler();
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private MediaPlayer mediaPlayer;
     private String currentStopName = null;
+    private String variantName = "";
 
     private final Runnable timeUpdater = new Runnable() {
         @Override
@@ -93,6 +93,8 @@ public class MainActivity extends AppCompatActivity {
             tvCurrentStop = findViewById(R.id.tvNow);
             tvAddress = findViewById(R.id.tvAddress);
             tvAccuracy = findViewById(R.id.tvAccuracy);
+            tvId = findViewById(R.id.tvId);
+            tvVariant = findViewById(R.id.tvVariant);
 
 
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -105,10 +107,9 @@ public class MainActivity extends AppCompatActivity {
             // Utrzymywanie ekranu włączonego
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+            setAndroidId(this);
             checkNotificationPermission();
             setHour();
-            getApiData();
-            getDB();
 
             locationHelper = new LocationHelper(this);
             geocoderHelper = new GeocoderHelper(this);
@@ -133,30 +134,30 @@ public class MainActivity extends AppCompatActivity {
         executor.execute(() -> {
             AppDatabase db = AppDatabase.getInstance(getApplicationContext());
             StopDao stopDao = db.stopDao();
-            List<Stop> stops = stopDao.getAllStops();
+            List<StopDB> stopDBS = stopDao.getAllStops();
 
             handler.post(() -> {
-                checkStopsProximity(currentLocation, stops);
+                checkStopsProximity(currentLocation, stopDBS);
             });
         });
 
     }
 
     @SuppressLint("SetTextI18n")
-    private void checkStopsProximity(Location currentLocation, List<Stop> stops) {
-     for (Stop stop : stops) {
+    private void checkStopsProximity(Location currentLocation, List<StopDB> stopDBS) {
+     for (StopDB stopDB : stopDBS) {
          Location stopLocation = new Location("");
-         stopLocation.setLatitude(stop.getLat());
-         stopLocation.setLongitude(stop.getLon());
+         stopLocation.setLatitude(stopDB.getLat());
+         stopLocation.setLongitude(stopDB.getLon());
 
          float distance = currentLocation.distanceTo(stopLocation);
 
          if (distance <= 10) {
 
-             String stopName = stop.getName();
+             String stopName = stopDB.getName();
 
              if (!stopName.equals(currentStopName)) {
-                 tvCurrentStop.setText(stop.getName());
+                 tvCurrentStop.setText(stopDB.getName());
                  String mp3Name = getAudioFileName(stopName);
                  Log.d("MP3", mp3Name);
 
@@ -181,6 +182,7 @@ public class MainActivity extends AppCompatActivity {
              return;
          }
      }
+     currentStopName = "Brak przystanku w pobliżu";
      tvCurrentStop.setText("Brak przystanku w pobliżu");
     }
 
@@ -218,15 +220,25 @@ public class MainActivity extends AppCompatActivity {
         tvTime.setText(currentTime);
     }
 
-    private void getApiData() {
-        BusApi busApi = RetrofitClient.getRetrofitInstance().create(BusApi.class);
+    private void getApiData(String androidId) {
+        if (androidId != null && androidId.isEmpty()) {
+            Log.e("API_ERROR", "Android ID is null or empty");
+            return;
+        }
 
-        busApi.getBusById(1L).enqueue(new Callback<Bus>() {
+        BusApi busApi = RetrofitClient.getRetrofitInstance().create(BusApi.class);
+        busApi.getBusById(androidId).enqueue(new Callback<Bus>() {
             @Override
             public void onResponse(@NonNull Call<Bus> call, @NonNull Response<Bus> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Bus bus = response.body();
-                    Log.d("BUS_DETAILS", "Bus: " + bus.getId() + " Line: " + bus.getLineNumber());
+                    Log.d("BUS_DETAILS", "Bus: " + bus.getId() + " Model: " + bus.getModel());
+
+                    if (bus.getStops() != null && !bus.getStops().isEmpty()) {
+                        updateStopsInDB(bus.getStops());
+                    }
+                } else {
+                    Log.e("API_ERROR", "Kod błędu: " + response.code());
                 }
             }
 
@@ -237,25 +249,32 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void getDB() {
+    private void updateStopsInDB(List<Stop> stops) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
-
         executor.execute(() -> {
             AppDatabase db = AppDatabase.getInstance(getApplicationContext());
             StopDao stopDao = db.stopDao();
 
-            stopDao.insert(new Stop("Stacja wujek Łukasz", 49.849325566709204, 20.7434461134111));
-            stopDao.insert(new Stop("Stacja wujek Wojtek", 49.84926291735035, 20.74384359629674));
-            stopDao.insert(new Stop("Stacja wujek Władek", 49.84943412785344, 20.744145156994847));
-            stopDao.insert(new Stop("Stacja krzyżówka", 49.849587299658324, 20.745886310070112));
-            stopDao.insert(new Stop("Stacja wały", 49.85008277540994, 20.746635381059967));
+            stopDao.deleteAllStops();
 
-            List<Stop> stops = stopDao.getAllStops();
-            for (Stop stop : stops) {
-                Log.d("DATABASE", "Stop: ID=" + stop.getId() +
-                        ", Name=" + stop.getName() +
-                        ", Lat=" + stop.getLat() +
-                        ", Lon=" + stop.getLon());
+            for (Stop stop: stops) {
+                if (!variantName.equals(stop.getLine())) {
+                    variantName = stop.getLine();
+                    tvVariant.setText(variantName);
+                }
+                stopDao.insert(stop.toStopDB());
+            }
+
+            List<StopDB> updatedStops = stopDao.getAllStops();
+            Log.d("DATABASE", "Zaktualizowane przystanki:");
+            for (StopDB stop : updatedStops) {
+                Log.d("DATABASE", String.format(
+                        "Przystanek: %s (Linia %s) @ %.6f, %.6f",
+                        stop.getName(),
+                        stop.getLine(),
+                        stop.getLat(),
+                        stop.getLon()
+                ));
             }
         });
     }
@@ -298,6 +317,13 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Wymagane zezwolenie na nakładkę!", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    private void setAndroidId(Context context) {
+        @SuppressLint("HardwareIds") String id = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        getApiData(id);
+        tvId.setText(id);
+        Log.d("AndroidId", "Android ID: " + id);
     }
 
     @Override

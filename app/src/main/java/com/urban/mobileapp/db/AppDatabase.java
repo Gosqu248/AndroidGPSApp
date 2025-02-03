@@ -7,10 +7,10 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
 import com.urban.mobileapp.db.dao.StopDao;
-import com.urban.mobileapp.db.entity.Stop;
+import com.urban.mobileapp.db.entity.StopDB;
 
 
-@Database(entities = {Stop.class}, version = 1)
+@Database(entities = {StopDB.class}, version = 1)
 public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase instance;
     public abstract StopDao stopDao();
