@@ -11,6 +11,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import android.os.Handler;
+import android.util.Log;
 
 public class GeocoderHelper {
     private final Context context;
@@ -41,6 +42,7 @@ public class GeocoderHelper {
 
             } catch (IOException e ) {
                 mainHandler.post(() -> listener.onError("Błąd geokodowania"));
+                Log.e("GeocoderHelper", "Błąd geokodowania", e);
             }
         });
     }

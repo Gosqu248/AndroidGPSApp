@@ -13,13 +13,15 @@ public class Stop {
     private String name;
     private double latitude;
     private double longitude;
+    private float bearing;
 
     public StopDB toStopDB() {
         return new StopDB(
                 this.line,
                 this.name,
                 this.latitude,
-                this.longitude
+                this.longitude,
+                this.bearing
         );
     }
 }

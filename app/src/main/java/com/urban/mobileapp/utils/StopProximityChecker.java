@@ -47,8 +47,9 @@ public class StopProximityChecker {
                     stopLocation.setLongitude(stop.getLon());
 
                     float distance = currentLocation.distanceTo(stopLocation);
+                    float bearing = currentLocation.getBearing() - stop.getBearing();
 
-                    if (distance <= 10) {
+                    if (distance <= 10 && Math.abs(bearing) <= 10) {
                         if (!stop.getName().equals(currentStopName)) {
                             tvCurrentStop.setText(stop.getName());
                             audioPlayerManager.playStopAnnouncement(stop.getName());

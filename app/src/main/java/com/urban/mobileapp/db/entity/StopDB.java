@@ -15,12 +15,14 @@ public class StopDB {
     private String name;
     private double lat;
     private double lon;
+    private float bearing;
 
-    public StopDB(String line, String name, double lat, double lon) {
+    public StopDB(String line, String name, double lat, double lon, float bearing) {
         this.line = line;
         this.name = name;
         this.lat = lat;
         this.lon = lon;
+        this.bearing = bearing;
     }
 
     // Gettery
@@ -29,6 +31,7 @@ public class StopDB {
     public String getName() { return name; }
     public double getLat() { return lat; }
     public double getLon() { return lon; }
+    public float getBearing() { return bearing; }
 
     // Settery
     public void setId(Long id) { this.id = id; }
@@ -36,4 +39,6 @@ public class StopDB {
     public void setName(String name) { this.name = name; }
     public void setLat(double lat) { this.lat = lat; }
     public void setLon(double lon) { this.lon = lon; }
+    public void setBearing(float bearing) { this.bearing = bearing; }
+
 }
